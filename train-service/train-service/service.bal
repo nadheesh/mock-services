@@ -9,6 +9,15 @@ type TrainInfo readonly & record {|
     string trainType;
 |};
 
+type TrainInfo1 record {|
+    string entryId;
+    string startTime;
+    string endTime;
+    string 'from;
+    string to;
+    string trainType;
+|};
+
 table<TrainInfo> key(entryId) trains = table [];
 
 isolated service / on new http:Listener(9090) {
@@ -36,13 +45,23 @@ isolated service / on new http:Listener(9090) {
         trains.add({entryId: "21", startTime: "8:00", endTime: "10:00", 'from: "Galle", to: "Colombo", trainType: "Normal"});
     }
 
-    resource function get checkTrains(@http:Query string 'from, @http:Query string to) returns record {|TrainInfo[] trains;|}|error {
+    # Useful to check for the available trains from a given station to another
+    #
+    # + 'from - Starting station
+    # + to - Destination station
+    # + return - List of train information matching the given criteria
+    resource function get checkTrains(@http:Query string 'from, @http:Query string to) returns TrainInfo[]|error {
         TrainInfo[] selectedTrains = trains.filter(train => train.'from == 'from && train.to == to).toArray();
         if selectedTrains.length() == 0 {
             return error("No trains found");
         }
-        return {trains: selectedTrains};
+        return selectedTrains;
     }
+
+    # Useful to book a train given the train ID
+    #
+    # + trainId - ID of the train to be booked
+    # + return - Booked train information
     resource function post bookTrain(string trainId) returns record {|TrainInfo bookedTrain;|}|error {
         TrainInfo? selectedTrain = trains.get(trainId);
         if (selectedTrain == null) {
@@ -51,6 +70,10 @@ isolated service / on new http:Listener(9090) {
         return {bookedTrain: selectedTrain};
     }
 
+    # Useful to get the details of a train given the train ID
+    #
+    # + trainId - ID of the train to be retrieved
+    # + return - Train information
     resource function get getTrain(string trainId) returns record {|TrainInfo train;|}|error {
         TrainInfo? selectedTrain = trains.get(trainId);
         if (selectedTrain == null) {
@@ -59,27 +82,39 @@ isolated service / on new http:Listener(9090) {
         return {train: selectedTrain};
     }
 
-    resource function get getTrains() returns record {|TrainInfo[] trains;|}|error {
+    # Useful to get the details of all the trains
+    #
+    # + return - List of all the trains
+    resource function get getTrains() returns TrainInfo[]|error {
         TrainInfo[] selectedTrains = trains.toArray();
         if (selectedTrains.length() == 0) {
             return error("No trains found");
         }
-        return {trains: selectedTrains};
+        return selectedTrains;
     }
 
-    resource function get getTrainsByType(@http:Query string trainType) returns record {|TrainInfo[] trains;|}|error {
+    # Useful to get the details of all the trains of a given type
+    #
+    # + trainType - Type of the train to be retrieved
+    # + return - List of all the trains matching the given criteria
+    resource function get getTrainsByType(@http:Query string trainType) returns TrainInfo[]|error {
         TrainInfo[] selectedTrains = trains.filter(train => train.trainType == trainType).toArray();
         if (selectedTrains.length() == 0) {
             return error("No trains found");
         }
-        return {trains: selectedTrains};
+        return selectedTrains;
     }
 
-    resource function get getTrainsByTime(@http:Query string startTime, @http:Query string endTime) returns record {|TrainInfo[] trains;|}|error {
+    # Useful to get the details of all the trains of a given time
+    #
+    # + startTime - Starting time of the train
+    # + endTime - Ending time of the train
+    # + return - List of all the trains matching the given criteria
+    resource function get getTrainsByTime(@http:Query string startTime, @http:Query string endTime) returns TrainInfo[]|error {
         TrainInfo[] selectedTrains = trains.filter(train => train.startTime == startTime && train.endTime == endTime).toArray();
         if (selectedTrains.length() == 0) {
             return error("No trains found");
         }
-        return {trains: selectedTrains};
+        return selectedTrains;
     }
 }

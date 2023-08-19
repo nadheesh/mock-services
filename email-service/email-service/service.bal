@@ -10,6 +10,9 @@ type EmailRequest record {|
 # this is an email service that supporst basic email functionalities
 isolated service / on new http:Listener(9090) {
 
+    # Useful to send mails to a given receiver
+    # + payload - email request payload
+    # + return - string with the status of the email sending
     resource function post sendEmail(EmailRequest payload) returns string|error {
 
         // check for valid email
