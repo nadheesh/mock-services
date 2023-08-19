@@ -1,8 +1,8 @@
 import ballerina/http;
 
 type EmailRequest record {|
-    string 'from;
-    string to;
+    string sender;
+    string receiver;
     string subject;
     string body;
 |};
@@ -10,8 +10,15 @@ type EmailRequest record {|
 # this is an email service that supporst basic email functionalities
 isolated service / on new http:Listener(9090) {
 
-    resource function post sendEmail(EmailRequest payload) returns string {
-        return "Email sent successfully to " + payload.'to;
+    resource function post sendEmail(EmailRequest payload) returns string|error {
 
+        // check for valid email
+        if (!payload.receiver.matches(re `^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$`)) {
+            return error("Invalid email address given for receiver");
+        }
+        if (!payload.sender.matches(re `^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$`)) {
+            return error("Invalid email address given for sender");
+        }
+        return "Email sent successfully to " + payload.receiver;
     }
 }
