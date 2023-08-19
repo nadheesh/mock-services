@@ -1,7 +1,7 @@
 import ballerina/http;
 
-type TrainInfo record {|
-    readonly string entryId;
+type TrainInfo readonly & record {|
+    string entryId;
     string startTime;
     string endTime;
     string 'from;
