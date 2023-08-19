@@ -36,19 +36,50 @@ isolated service / on new http:Listener(9090) {
         trains.add({entryId: "21", startTime: "8:00", endTime: "10:00", 'from: "Galle", to: "Colombo", trainType: "Normal"});
     }
 
-    resource function get trains(string 'from, string to) returns record {|TrainInfo[] trains;|}|error {
+    resource function get checkTrains(@http:Query string 'from, @http:Query string to) returns record {|TrainInfo[] trains;|}|error {
         TrainInfo[] selectedTrains = trains.filter(train => train.'from == 'from && train.to == to).toArray();
         if selectedTrains.length() == 0 {
             return error("No trains found");
         }
         return {trains: selectedTrains};
     }
-
     resource function post bookTrain(string trainId) returns record {|TrainInfo bookedTrain;|}|error {
         TrainInfo? selectedTrain = trains.get(trainId);
         if (selectedTrain == null) {
             return error("No train found");
         }
         return {bookedTrain: selectedTrain};
+    }
+
+    resource function get getTrain(string trainId) returns record {|TrainInfo train;|}|error {
+        TrainInfo? selectedTrain = trains.get(trainId);
+        if (selectedTrain == null) {
+            return error("No train found");
+        }
+        return {train: selectedTrain};
+    }
+
+    resource function get getTrains() returns record {|TrainInfo[] trains;|}|error {
+        TrainInfo[] selectedTrains = trains.toArray();
+        if (selectedTrains.length() == 0) {
+            return error("No trains found");
+        }
+        return {trains: selectedTrains};
+    }
+
+    resource function get getTrainsByType(@http:Query string trainType) returns record {|TrainInfo[] trains;|}|error {
+        TrainInfo[] selectedTrains = trains.filter(train => train.trainType == trainType).toArray();
+        if (selectedTrains.length() == 0) {
+            return error("No trains found");
+        }
+        return {trains: selectedTrains};
+    }
+
+    resource function get getTrainsByTime(@http:Query string startTime, @http:Query string endTime) returns record {|TrainInfo[] trains;|}|error {
+        TrainInfo[] selectedTrains = trains.filter(train => train.startTime == startTime && train.endTime == endTime).toArray();
+        if (selectedTrains.length() == 0) {
+            return error("No trains found");
+        }
+        return {trains: selectedTrains};
     }
 }
