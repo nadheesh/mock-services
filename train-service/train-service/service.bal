@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/uuid;
 
 type TrainInfo readonly & record {|
     string entryId;
@@ -9,8 +10,8 @@ type TrainInfo readonly & record {|
     string trainType;
 |};
 
-type TrainInfo1 record {|
-    string entryId;
+type BookingInfo record {|
+    string bookingId;
     string startTime;
     string endTime;
     string 'from;
@@ -62,12 +63,20 @@ isolated service / on new http:Listener(9090) {
     #
     # + trainId - ID of the train to be booked
     # + return - Booked train information
-    resource function post bookTrain(string trainId) returns record {|TrainInfo bookedTrain;|}|error {
+    resource function post bookTrain(string trainId) returns BookingInfo|error {
         TrainInfo? selectedTrain = trains.get(trainId);
-        if (selectedTrain == null) {
+        if selectedTrain == () {
             return error("No train found");
         }
-        return {bookedTrain: selectedTrain};
+
+        return {
+            bookingId: uuid:createType1AsString(),
+            startTime: selectedTrain.startTime,
+            endTime: selectedTrain.endTime,
+            'from: selectedTrain.'from,
+            to: selectedTrain.to,
+            trainType: selectedTrain.trainType
+        };
     }
 
     # Useful to get the details of a train given the train ID
@@ -76,7 +85,7 @@ isolated service / on new http:Listener(9090) {
     # + return - Train information
     resource function get getTrain(string trainId) returns record {|TrainInfo train;|}|error {
         TrainInfo? selectedTrain = trains.get(trainId);
-        if (selectedTrain == null) {
+        if selectedTrain == () {
             return error("No train found");
         }
         return {train: selectedTrain};
@@ -87,7 +96,7 @@ isolated service / on new http:Listener(9090) {
     # + return - List of all the trains
     resource function get getTrains() returns TrainInfo[]|error {
         TrainInfo[] selectedTrains = trains.toArray();
-        if (selectedTrains.length() == 0) {
+        if selectedTrains.length() == 0 {
             return error("No trains found");
         }
         return selectedTrains;
@@ -99,7 +108,7 @@ isolated service / on new http:Listener(9090) {
     # + return - List of all the trains matching the given criteria
     resource function get getTrainsByType(@http:Query string trainType) returns TrainInfo[]|error {
         TrainInfo[] selectedTrains = trains.filter(train => train.trainType == trainType).toArray();
-        if (selectedTrains.length() == 0) {
+        if selectedTrains.length() == 0 {
             return error("No trains found");
         }
         return selectedTrains;
@@ -112,7 +121,7 @@ isolated service / on new http:Listener(9090) {
     # + return - List of all the trains matching the given criteria
     resource function get getTrainsByTime(@http:Query string startTime, @http:Query string endTime) returns TrainInfo[]|error {
         TrainInfo[] selectedTrains = trains.filter(train => train.startTime == startTime && train.endTime == endTime).toArray();
-        if (selectedTrains.length() == 0) {
+        if selectedTrains.length() == 0 {
             return error("No trains found");
         }
         return selectedTrains;
