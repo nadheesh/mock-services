@@ -61,10 +61,10 @@ isolated service / on new http:Listener(9090) {
 
     # Useful to book a train given the train ID
     #
-    # + trainId - ID of the train to be booked
+    # + trainScheduleId - ID of the train to be booked
     # + return - Booked train information
-    resource function post bookTrain(string trainId) returns BookingInfo|error {
-        TrainInfo? selectedTrain = trains.get(trainId);
+    resource function post bookTrain(string trainScheduleId) returns BookingInfo|error {
+        TrainInfo? selectedTrain = trains.get(trainScheduleId);
         if selectedTrain == () {
             return error("No train found");
         }
@@ -81,10 +81,10 @@ isolated service / on new http:Listener(9090) {
 
     # Useful to get the details of a train given the train ID
     #
-    # + trainId - ID of the train to be retrieved
+    # + trainScheduleId - ID of the train to be retrieved
     # + return - Train information
-    resource function get getTrain(string trainId) returns record {|TrainInfo train;|}|error {
-        TrainInfo? selectedTrain = trains.get(trainId);
+    resource function get getTrain(string trainScheduleId) returns record {|TrainInfo train;|}|error {
+        TrainInfo? selectedTrain = trains.get(trainScheduleId);
         if selectedTrain == () {
             return error("No train found");
         }
