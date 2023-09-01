@@ -51,7 +51,7 @@ isolated service / on new http:Listener(9090) {
     # + 'from - Starting station
     # + to - Destination station
     # + return - List of train information matching the given criteria
-    resource function get checkTrains(@http:Query string 'from, @http:Query string to) returns TrainInfo[]|error {
+    resource function get checkTrains(string 'from, string to) returns TrainInfo[]|error {
         TrainInfo[] selectedTrains = trains.filter(train => train.'from == 'from && train.to == to).toArray();
         if selectedTrains.length() == 0 {
             return error("No trains found");
@@ -106,7 +106,7 @@ isolated service / on new http:Listener(9090) {
     #
     # + trainType - Type of the train to be retrieved
     # + return - List of all the trains matching the given criteria
-    resource function get getTrainsByType(@http:Query string trainType) returns TrainInfo[]|error {
+    resource function get getTrainsByType(string trainType) returns TrainInfo[]|error {
         TrainInfo[] selectedTrains = trains.filter(train => train.trainType == trainType).toArray();
         if selectedTrains.length() == 0 {
             return error("No trains found");
@@ -119,7 +119,7 @@ isolated service / on new http:Listener(9090) {
     # + startTime - Starting time of the train
     # + endTime - Ending time of the train
     # + return - List of all the trains matching the given criteria
-    resource function get getTrainsByTime(@http:Query string startTime, @http:Query string endTime) returns TrainInfo[]|error {
+    resource function get getTrainsByTime(string startTime, string endTime) returns TrainInfo[]|error {
         TrainInfo[] selectedTrains = trains.filter(train => train.startTime == startTime && train.endTime == endTime).toArray();
         if selectedTrains.length() == 0 {
             return error("No trains found");
