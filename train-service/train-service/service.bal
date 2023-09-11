@@ -21,7 +21,7 @@ type BookingInfo record {|
 
 table<TrainInfo> key(entryId) trains = table [];
 
-isolated service / on new http:Listener(9090) {
+isolated service / on new http:Listener(9091) {
     function init() {
         trains.add({entryId: "1", startTime: "10:00", endTime: "11:00", 'from: "Colombo", to: "Kandy", trainType: "Express"});
         trains.add({entryId: "2", startTime: "11:00", endTime: "12:00", 'from: "Colombo", to: "Kandy", trainType: "Express"});
